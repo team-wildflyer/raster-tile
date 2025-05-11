@@ -4,40 +4,29 @@
   "description": "Isomorphic tile generator for GeoJSON data",
   "author": "Joost Lubach",
   "private": false,
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/types/index.d.ts",
+  "license": "MIT",
+  "main": "./src/index.ts",
   "exports": {
-    ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "default": "./dist/cjs/index.js"
-    }
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
   },
   "scripts": {
-    "build": "pnpm clean && pnpm build:tsc",
-    "build:tsc": "pnpm build:tsc:esm && pnpm build:tsc:cjs",
-    "build:tsc:esm": "tsc -p tsconfig.prod.json --module esnext --outDir dist/esm --declarationDir dist/types",
-    "build:tsc:cjs": "tsc -p tsconfig.prod.json --module commonjs --outDir dist/cjs --declaration false --declarationMap false",
-    "clean": "rimraf dist",
-    "lint": "eslint src --ext .ts",
-    "check": "tsc -p . --noEmit",
-    "test": "NODE_ENV=test jest"
-  },
-  "devDependencies": {
-    "@types/geojson": "^7946.0.14",
-    "@types/jest": "^29.5.14",
-    "@types/lodash": "^4.17.16",
-    "rimraf": "^5.0.5",
-    "ts-jest": "^29.1.2",
-    "tsc-alias": "^1.8.8",
-    "typescript": "5.4.3"
+    "lint": "eslint src --ext ts,tsx",
+    "check": "tsc --noEmit",
+    "test": "bun run test"
   },
   "dependencies": {
-    "@types/d3-shape": "^3.1.7",
+    "@turf/turf": "^7.2.0",
+    "@types/geojson": "^7946.0.16",
     "d3-shape": "^3.2.0",
-    "geojson-classes": "workspace:^",
+    "geojson-classes": "workspace:*",
     "lodash": "^4.17.21",
-    "ytil": "workspace:^"
+    "semaphore": "workspace:^",
+    "ytil": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/d3-shape": "^3.1.7",
+    "@types/jest": "^29.5.14",
+    "@types/lodash": "^4.17.16"
   }
 }
