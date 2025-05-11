@@ -1,4 +1,4 @@
+import { CanvasRenderingContext2D as NodeCanvasRenderingContext2D } from 'canvas'
 
-
-export type GeotilerRenderingContext = CanvasCompositing & CanvasDrawImage & CanvasDrawPath & CanvasFillStrokeStyles & CanvasFilters & CanvasImageData & CanvasImageSmoothing & CanvasPath & CanvasPathDrawingStyles & CanvasRect & CanvasShadowStyles & CanvasState & CanvasText & CanvasTextDrawingStyles & CanvasTransform
+export type GeotilerRenderingContext = CanvasRenderingContext2D | NodeCanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
 
