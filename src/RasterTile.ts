@@ -37,12 +37,8 @@ export class RasterTile<P extends GeoJSON.GeoJsonProperties> {
 
   // #region Interface
 
-  public drawFeatures(context: GeotilerRenderingContext, delegate: FeatureRendererDelegate<P>, options: DrawFeaturesOptions = {}) {
+  public drawFeatures(context: GeotilerRenderingContext, delegate: FeatureRendererDelegate<P>) {
     context.clearRect(0, 0, this.width, this.height)
-
-    if (options.blur) {
-      context.filter = `blur(${options.blur}px)`
-    }
 
     // First render all features.
     for (const feature of this.features) {
@@ -119,8 +115,4 @@ export interface GeotileOptions {
    * The unit of the padding.
    */
   paddingUnit?: 'px' | 'deg'
-}
-
-export interface DrawFeaturesOptions {
-  blur?: number
 }
