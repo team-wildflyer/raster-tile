@@ -1,11 +1,12 @@
 import { FeatureCollection, Geometry } from 'geojson'
 import { BBox } from 'geojson-classes'
 import { memoized } from 'ytil'
+
 import { FeatureRenderer, FeatureRendererDelegate } from './FeatureRenderer'
 import { LabelRenderer, LabelRendererDelegate } from './LabelRenderer'
 import { GeotilerRenderingContext } from './types'
 
-export class TileRenderer<P> {
+export class RasterTile<P> {
 
   constructor(
     public readonly bbox: BBox,

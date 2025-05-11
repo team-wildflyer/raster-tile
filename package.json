@@ -1,5 +1,5 @@
 {
-  "name": "tile-renderer",
+  "name": "raster-tile",
   "version": "1.0.1",
   "description": "Isomorphic tile generator for GeoJSON data",
   "author": "Joost Lubach",
