@@ -2,13 +2,13 @@ import { Feature, Geometry, Position } from 'geojson'
 import { memoized } from 'ytil'
 import { Paint, PaintInit } from './Paint'
 import { LabelPlacement, Path } from './Path'
-import { TileRenderer } from './TileRenderer'
+import { RasterTile } from './RasterTile'
 import { GeotilerRenderingContext } from './types'
 
 export class LabelRenderer<P> {
 
   constructor(
-    public readonly tile: TileRenderer<P>,
+    public readonly tile: RasterTile<P>,
     public readonly feature: Feature<Geometry, P>,
     public readonly delegate: LabelRendererDelegate<P>,
   ) {}
