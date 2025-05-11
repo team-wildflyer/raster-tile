@@ -1,4 +1,5 @@
-import { Feature, Geometry, Position } from 'geojson'
+import { Position } from 'geojson'
+import { FeatureWithProps } from 'geojson-classes'
 import { memoized } from 'ytil'
 
 import { Paint, PaintInit } from './Paint'
@@ -6,11 +7,11 @@ import { LabelPlacement, Path } from './Path'
 import { RasterTile } from './RasterTile'
 import { GeotilerRenderingContext } from './types'
 
-export class LabelRenderer<P> {
+export class LabelRenderer<P extends GeoJSON.GeoJsonProperties> {
 
   constructor(
     public readonly tile: RasterTile<P>,
-    public readonly feature: Feature<Geometry, P>,
+    public readonly feature: FeatureWithProps<P>,
     public readonly delegate: LabelRendererDelegate<P>,
   ) {}
 
@@ -44,31 +45,14 @@ export class LabelRenderer<P> {
   // #region Placement
 
   private *placeLabels(): Generator<LabelPlacement> {
-    switch (this.feature.geometry.type) {
-    case 'Point':
-      yield *this.placeForPoint(this.feature.geometry.coordinates)
-      break
-    case 'MultiPoint':
-      for (const coords of this.feature.geometry.coordinates) {
-        yield *this.placeForPoint(coords)
-      }
-      break
-    case 'Polygon':
-      yield *this.placeForPolygon(this.feature.geometry.coordinates)
-      break
-    case 'MultiPolygon':
-      for (const coords of this.feature.geometry.coordinates) {
+    if (this.feature.isPoint()) {
+      yield *this.placeForPoint(this.feature.coordinates)
+    } else if (this.feature.isPolygon()) {
+      yield *this.placeForPolygon(this.feature.coordinates)
+    } else if (this.feature.isMultiPolygon()) {
+      for (const coords of this.feature.coordinates) {
         yield *this.placeForPolygon(coords)
       }
-      break
-    case 'LineString':
-      yield *this.placeForLineString(this.feature.geometry.coordinates)
-      break
-    case 'MultiLineString':
-      for (const coords of this.feature.geometry.coordinates) {
-        yield *this.placeForLineString(coords)
-      }
-      break
     }
   }
 
@@ -101,7 +85,7 @@ export class LabelRenderer<P> {
 
 }
 
-export interface LabelRendererDelegate<P> {
-  label:  (properties: P, feature: Feature<Geometry, P>) => string | undefined
-  paint?: (properties: P, feature: Feature<Geometry, P>) => PaintInit
+export interface LabelRendererDelegate<P extends GeoJSON.GeoJsonProperties> {
+  label:  (properties: P, feature: FeatureWithProps<P>) => string | undefined
+  paint?: (properties: P, feature: FeatureWithProps<P>) => PaintInit
 }

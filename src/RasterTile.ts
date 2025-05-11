@@ -1,16 +1,15 @@
-import { FeatureCollection, Geometry } from 'geojson'
-import { BBox } from 'geojson-classes'
+import { BBox, FeatureCollectionWithProps } from 'geojson-classes'
 import { memoized } from 'ytil'
 
 import { FeatureRenderer, FeatureRendererDelegate } from './FeatureRenderer'
 import { LabelRenderer, LabelRendererDelegate } from './LabelRenderer'
 import { GeotilerRenderingContext } from './types'
 
-export class RasterTile<P> {
+export class RasterTile<P extends GeoJSON.GeoJsonProperties> {
 
   constructor(
     public readonly bbox: BBox,
-    public readonly features: FeatureCollection<Geometry, P>,
+    public readonly features: FeatureCollectionWithProps<P>,
     public readonly width: number,
     public readonly height: number,
     public readonly options: GeotileOptions = {},
@@ -46,14 +45,14 @@ export class RasterTile<P> {
     }
 
     // First render all features.
-    for (const feature of this.features.features) {
+    for (const feature of this.features) {
       const renderer = new FeatureRenderer(this, feature, delegate)
       renderer.render(context)
     }
   }
 
   public drawLabels(context: GeotilerRenderingContext, delegate: LabelRendererDelegate<P>) {
-    for (const feature of this.features.features) {
+    for (const feature of this.features) {
       const renderer = new LabelRenderer(this, feature, delegate)
       renderer.render(context)
     }

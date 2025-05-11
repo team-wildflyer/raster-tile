@@ -1,4 +1,5 @@
-import { Feature, Geometry, Position } from 'geojson'
+import { Position } from 'geojson'
+import { FeatureWithProps } from 'geojson-classes'
 import { memoized } from 'ytil'
 
 import { Paint, PaintInit } from './Paint'
@@ -6,11 +7,11 @@ import { Path } from './Path'
 import { RasterTile } from './RasterTile'
 import { GeotilerRenderingContext } from './types'
 
-export class FeatureRenderer<P> {
+export class FeatureRenderer<P extends GeoJSON.GeoJsonProperties> {
 
   constructor(
     public readonly tile: RasterTile<P>,
-    public readonly feature: Feature<Geometry, P>,
+    public readonly feature: FeatureWithProps<P>,
     public readonly delegate: FeatureRendererDelegate<P>,
   ) {}
 
@@ -23,31 +24,12 @@ export class FeatureRenderer<P> {
   // #region Rendering
   
   public render(context: GeotilerRenderingContext) {
-    switch (this.feature.geometry.type) {
-    case 'Point':
-      this.renderPoint(context, this.feature.geometry.coordinates)
-      break
-    case 'MultiPoint':
-      this.renderMultiPoint(context, this.feature.geometry.coordinates)
-      break
-    case 'Polygon':
-      this.renderPolygon(context, this.feature.geometry.coordinates)
-      break
-    case 'MultiPolygon':
-      this.renderMultiPolygon(context, this.feature.geometry.coordinates)
-      break
-    case 'LineString':
-      this.renderLineString(context, this.feature.geometry.coordinates)
-      break
-    case 'MultiLineString':
-      this.renderMultiLineString(context, this.feature.geometry.coordinates)
-      break
-    }
-  }
-
-  private renderMultiPoint(context: GeotilerRenderingContext, coordinates: Position[]) {
-    for (const coords of coordinates) {
-      this.renderPoint(context, coords)
+    if (this.feature.isPoint()) {
+      this.renderPoint(context, this.feature.coordinates)
+    } else if (this.feature.isPolygon()) {
+      this.renderPolygon(context, this.feature.coordinates)
+    } else if (this.feature.isMultiPolygon()) {
+      this.renderMultiPolygon(context, this.feature.coordinates)
     }
   }
 
@@ -78,28 +60,10 @@ export class FeatureRenderer<P> {
     this.paint.draw(context)
   }
 
-  private renderMultiLineString(context: GeotilerRenderingContext, coordinates: Position[][]) {
-    for (const coords of coordinates) {
-      this.renderLineString(context, coords)
-    }
-  }
-
-  private renderLineString(context: GeotilerRenderingContext, coordinates: Position[]) {
-    const points = coordinates.map(([lng, lat]) => this.tile.project(lng, lat))
-    const path = new Path([points])
-
-    if (this.paint.bezier()) {
-      path.drawCatmullRom(context)
-    } else {
-      path.drawLinear(context)
-    }
-    this.paint.draw(context)
-  }
-  
   // #endregion
 
 }
 
-export interface FeatureRendererDelegate<P> {
-  paint: (properties: P, feature: Feature<Geometry, P>) => PaintInit
+export interface FeatureRendererDelegate<P extends GeoJSON.GeoJsonProperties> {
+  paint: (properties: P, feature: FeatureWithProps<P>) => PaintInit
 }
