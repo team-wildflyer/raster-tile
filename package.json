@@ -1,0 +1,29 @@
+{
+  "name": "tile-renderer",
+  "version": "1.0.1",
+  "description": "Isomorphic tile generator for GeoJSON data",
+  "author": "Joost Lubach",
+  "private": false,
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "lint": "eslint src --ext ts,tsx",
+    "check": "tsc --noEmit",
+    "test": "bun run test"
+  },
+  "dependencies": {
+    "@turf/turf": "^7.2.0",
+    "@types/geojson": "^7946.0.14",
+    "geojson": "^0.5.0",
+    "geojson-classes": "workspace:*",
+    "semaphore": "workspace:^",
+    "ytil": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14"
+  }
+}
