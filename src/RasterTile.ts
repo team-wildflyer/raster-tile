@@ -1,5 +1,5 @@
 import { BBox, FeatureCollectionWithProps } from 'geojson-classes'
-import { memoized } from 'ytil'
+import { LayoutRect, memoized } from 'ytil'
 
 import { FeatureRenderer, FeatureRendererDelegate } from './FeatureRenderer'
 import { LabelRenderer, LabelRendererDelegate } from './LabelRenderer'
@@ -16,23 +16,18 @@ export class RasterTile<P extends GeoJSON.GeoJsonProperties> {
   ) {}
 
   @memoized
-  private get paddingX() {
+  public get paddingInPx(): [number, number] {
     const {padding = 0, paddingUnit = 'px'} = this.options
-    if (paddingUnit === 'px') { return padding }
+    if (paddingUnit === 'px') { return [padding, padding] }
 
     const lonSpan = this.bbox.lon2 - this.bbox.lon1
-    const pxPerLonDeg = this.width / lonSpan
-    return padding * pxPerLonDeg
-  }
-
-  @memoized
-  private get paddingY() {
-    const {padding = 0, paddingUnit = 'px'} = this.options
-    if (paddingUnit === 'px') { return padding }
-
     const latSpan = this.bbox.lat2 - this.bbox.lat1
+    const pxPerLonDeg = this.width / lonSpan
     const pxPerLatDeg = this.height / latSpan
-    return padding * pxPerLatDeg
+    return [
+      padding * pxPerLonDeg,
+      padding * pxPerLatDeg,
+    ]
   }
 
   // #region Interface
@@ -53,43 +48,38 @@ export class RasterTile<P extends GeoJSON.GeoJsonProperties> {
       renderer.render(context)
     }
   }
-
-  public drawDebugInfo(context: GeotilerRenderingContext, z: number, x: number, y: number) {
-
-    // Render a border around the tile.
-    context.save()
-    context.strokeStyle = '#0000ff'
-    context.lineWidth = 1
-    context.setLineDash([5, 5])
-    context.strokeRect(this.paddingX, this.paddingY, this.width, this.height)
-    context.restore()
-
-    // Render the tile's coordinates.
-    context.save()
-    context.fillStyle = '#000000'
-    context.font = '12px sans-serif'
-    context.fillText(
-      `[${z},${x},${y}]`,
-      this.paddingX + 5,
-      this.paddingY + 15,
-    )
-    context.restore()
-  }
   
   // #region Projection
   
-  public project(lon: number, lat: number): [number, number] {
-    const bbox = this.bbox
-    const x = (lon - bbox.lon1) / (bbox.lon2 - bbox.lon1) * this.width
-    const y = (1 - (lat - bbox.lat1) / (bbox.lat2 - bbox.lat1)) * this.height
-
-    return [
-      (x + this.paddingX),
-      (y + this.paddingY),
-    ]
+  public get outerBounds(): LayoutRect {
+    const [paddingX, paddingY] = this.paddingInPx
+    return {
+      left: 0, 
+      top: 0, 
+      width: this.width + 2 * paddingX,
+      height: this.height + 2 * paddingY,
+    }
   }
 
-  // #endregion
+  public get innerBounds(): LayoutRect {
+    const [paddingX, paddingY] = this.paddingInPx
+    return {
+      left: paddingX,
+      top:  paddingY,
+      width: this.width,
+      height: this.height,
+    }
+  }
+
+  public project(lon: number, lat: number): [number, number] {
+    const bbox = this.bbox
+    const [paddingX, paddingY] = this.paddingInPx
+
+    const x = (lon - bbox.lon1) / (bbox.lon2 - bbox.lon1) * this.innerBounds.width
+    const y = (1 - (lat - bbox.lat1) / (bbox.lat2 - bbox.lat1)) * this.innerBounds.height
+
+    return [(x + paddingX), (y + paddingY)]
+  }
 
   // #endregion
 
