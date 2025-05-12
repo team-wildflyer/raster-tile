@@ -12,7 +12,7 @@ export class RasterTile<P extends GeoJSON.GeoJsonProperties> {
     public readonly features: FeatureCollectionWithProps<P>,
     public readonly width: number,
     public readonly height: number,
-    public readonly options: GeotileOptions = {},
+    public readonly options: RasterTileOptions = {},
   ) {}
 
   @memoized
@@ -95,17 +95,7 @@ export class RasterTile<P extends GeoJSON.GeoJsonProperties> {
 
 }
 
-export interface GeotileOptions {
-  /**
-   * Whether to colorize the tile.
-   */
-  color?: boolean
-
-  /**
-   * Whether or not to include labels.
-   */
-  labels?: boolean
-
+export interface RasterTileOptions {
   /**
    * A padding to apply to the image for debugging purposes.
    */
