@@ -1,33 +1,44 @@
 {
   "name": "raster-tile",
   "version": "1.0.1",
-  "description": "Isomorphic tile rasterizer for GeoJSON data",
+  "description": "Isomorphic tile generator for GeoJSON data",
   "author": "Joost Lubach",
   "private": false,
-  "license": "MIT",
-  "main": "./src/index.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./*": "./src/*.ts"
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/cjs/index.js"
+    }
   },
   "scripts": {
-    "lint": "eslint src --ext ts,tsx",
-    "check": "tsc --noEmit",
-    "test": "bun run test"
-  },
-  "dependencies": {
-    "@turf/turf": "^7.2.0",
-    "@types/geojson": "^7946.0.16",
-    "d3-shape": "^3.2.0",
-    "geojson-classes": "workspace:*",
-    "lodash": "^4.17.21",
-    "semaphore": "workspace:^",
-    "ytil": "workspace:*"
+    "build": "pnpm clean && pnpm build:tsc",
+    "build:tsc": "pnpm build:tsc:esm && pnpm build:tsc:cjs",
+    "build:tsc:esm": "tsc -p tsconfig.prod.json --module esnext --outDir dist/esm --declarationDir dist/types",
+    "build:tsc:cjs": "tsc -p tsconfig.prod.json --module commonjs --outDir dist/cjs --declaration false --declarationMap false",
+    "clean": "rimraf dist",
+    "lint": "eslint src --ext .ts",
+    "check": "tsc -p . --noEmit",
+    "test": "NODE_ENV=test jest"
   },
   "devDependencies": {
-    "@types/d3-shape": "^3.1.7",
+    "@types/geojson": "^7946.0.14",
     "@types/jest": "^29.5.14",
     "@types/lodash": "^4.17.16",
-    "canvas": "^3.1.0"
+    "canvas": "^3.1.0",
+    "rimraf": "^5.0.5",
+    "ts-jest": "^29.1.2",
+    "tsc-alias": "^1.8.8",
+    "typescript": "5.4.3"
+  },
+  "dependencies": {
+    "@types/d3-shape": "^3.1.7",
+    "d3-shape": "^3.2.0",
+    "geojson-classes": "workspace:^",
+    "lodash": "^4.17.21",
+    "ytil": "workspace:^"
   }
 }
