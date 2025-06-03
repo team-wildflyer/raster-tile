@@ -1,11 +1,10 @@
 import { Position } from 'geojson'
 import { FeatureWithProps } from 'geojson-classes'
 import { memoized } from 'ytil'
-
-import { LabelPosition, Paint, PaintInit } from './Paint'
-import { LabelPlacement, Path } from './Path'
+import { Paint } from './Paint'
+import { Path } from './Path'
 import { RasterTile } from './RasterTile'
-import { GeotilerRenderingContext } from './types'
+import { GeotilerRenderingContext, LabelPlacement, LabelRendererDelegate } from './types'
 
 export class LabelRenderer<P extends GeoJSON.GeoJsonProperties> {
 
@@ -14,11 +13,6 @@ export class LabelRenderer<P extends GeoJSON.GeoJsonProperties> {
     public readonly feature: FeatureWithProps<P>,
     public readonly delegate: LabelRendererDelegate<P>,
   ) {}
-
-  @memoized
-  private get label() {
-    return this.delegate.label(this.feature.properties, this.feature)
-  }
 
   @memoized
   private get paint() {
@@ -33,10 +27,13 @@ export class LabelRenderer<P extends GeoJSON.GeoJsonProperties> {
   // #region Rendering
   
   public render(context: GeotilerRenderingContext) {
-    if (this.label == null) { return }
+    if (this.delegate.label == null) { return }
 
-    for (const {x, y, rotation, accessory} of this.placeLabels()) {
-      const label = accessory == null ? this.label : `${this.label} ${accessory}`
+    for (const placement of this.placeLabels()) {
+      const label = this.delegate.label(this.feature.properties, placement, this.feature)
+      if (label == null) { continue }
+
+      const {x, y, rotation} = placement
       this.paint.drawText(context, label, x, y, rotation)
     }
   }
@@ -65,7 +62,6 @@ export class LabelRenderer<P extends GeoJSON.GeoJsonProperties> {
       x: cx,
       y: cy + this.paint.fontSize(),
       rotation,
-      accessory: null,
     }
   }
 
@@ -74,9 +70,6 @@ export class LabelRenderer<P extends GeoJSON.GeoJsonProperties> {
     const path = new Path(points)
 
     for (const placement of path.placeLabels(this.paint.labelPosition(), this.paint.labelCount())) {
-      yield placement
-    }
-    for (const placement of path.placeLabels(LabelPosition.Center, this.paint.labelCount())) {
       yield placement
     }
   }
@@ -92,9 +85,4 @@ export class LabelRenderer<P extends GeoJSON.GeoJsonProperties> {
 
   // #endregion
 
-}
-
-export interface LabelRendererDelegate<P extends GeoJSON.GeoJsonProperties> {
-  label:  (properties: P, feature: FeatureWithProps<P>) => string | undefined
-  paint?: (properties: P, feature: FeatureWithProps<P>) => PaintInit
 }

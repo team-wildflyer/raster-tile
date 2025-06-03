@@ -1,9 +1,8 @@
 import { BBox, FeatureCollectionWithProps } from 'geojson-classes'
 import { LayoutRect, memoized } from 'ytil'
-
-import { FeatureRenderer, FeatureRendererDelegate } from './FeatureRenderer'
-import { LabelRenderer, LabelRendererDelegate } from './LabelRenderer'
-import { GeotilerRenderingContext } from './types'
+import { FeatureRenderer } from './FeatureRenderer'
+import { LabelRenderer } from './LabelRenderer'
+import { FeatureRendererDelegate, GeotilerRenderingContext, LabelRendererDelegate } from './types'
 
 export class RasterTile<P extends GeoJSON.GeoJsonProperties> {
 
@@ -60,9 +59,9 @@ export class RasterTile<P extends GeoJSON.GeoJsonProperties> {
   public get outerBounds(): LayoutRect {
     const [paddingX, paddingY] = this.paddingInPx
     return {
-      left: 0, 
-      top: 0, 
-      width: this.width + 2 * paddingX,
+      left:   0, 
+      top:    0, 
+      width:  this.width + 2 * paddingX,
       height: this.height + 2 * paddingY,
     }
   }
@@ -70,9 +69,9 @@ export class RasterTile<P extends GeoJSON.GeoJsonProperties> {
   public get innerBounds(): LayoutRect {
     const [paddingX, paddingY] = this.paddingInPx
     return {
-      left: paddingX,
-      top:  paddingY,
-      width: this.width,
+      left:   paddingX,
+      top:    paddingY,
+      width:  this.width,
       height: this.height,
     }
   }

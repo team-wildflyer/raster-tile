@@ -1,11 +1,10 @@
 import { Position } from 'geojson'
 import { FeatureWithProps } from 'geojson-classes'
 import { memoized } from 'ytil'
-
-import { Paint, PaintInit } from './Paint'
+import { Paint } from './Paint'
 import { Path } from './Path'
 import { RasterTile } from './RasterTile'
-import { GeotilerRenderingContext } from './types'
+import { FeatureRendererDelegate, GeotilerRenderingContext } from './types'
 
 export class FeatureRenderer<P extends GeoJSON.GeoJsonProperties> {
 
@@ -62,9 +61,4 @@ export class FeatureRenderer<P extends GeoJSON.GeoJsonProperties> {
 
   // #endregion
 
-}
-
-export interface FeatureRendererDelegate<P extends GeoJSON.GeoJsonProperties> {
-  paint: (properties: P, feature: FeatureWithProps<P>) => PaintInit
-  zIndex?: (properties: P, feature: FeatureWithProps<P>) => number
 }

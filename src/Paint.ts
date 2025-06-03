@@ -11,7 +11,7 @@ export class Paint {
       fontSize:       12,
       textPadding:    2,
       labelPosition:  LabelPosition.Center,
-      labelCount:     1,
+      labelCount:     1, // This is for some reason not working for N > 1.
       labelClearRect: false,
 
       bezier: false,
