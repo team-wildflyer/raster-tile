@@ -66,4 +66,5 @@ export class FeatureRenderer<P extends GeoJSON.GeoJsonProperties> {
 
 export interface FeatureRendererDelegate<P extends GeoJSON.GeoJsonProperties> {
   paint: (properties: P, feature: FeatureWithProps<P>) => PaintInit
+  zIndex?: (properties: P, feature: FeatureWithProps<P>) => number
 }

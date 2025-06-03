@@ -2,7 +2,7 @@ import { Position } from 'geojson'
 import { FeatureWithProps } from 'geojson-classes'
 import { memoized } from 'ytil'
 
-import { Paint, PaintInit } from './Paint'
+import { LabelPosition, Paint, PaintInit } from './Paint'
 import { LabelPlacement, Path } from './Path'
 import { RasterTile } from './RasterTile'
 import { GeotilerRenderingContext } from './types'
@@ -35,8 +35,9 @@ export class LabelRenderer<P extends GeoJSON.GeoJsonProperties> {
   public render(context: GeotilerRenderingContext) {
     if (this.label == null) { return }
 
-    for (const {x, y, rotation} of this.placeLabels()) {
-      this.paint.drawText(context, this.label, x, y, rotation)
+    for (const {x, y, rotation, accessory} of this.placeLabels()) {
+      const label = accessory == null ? this.label : `${this.label} ${accessory}`
+      this.paint.drawText(context, label, x, y, rotation)
     }
   }
   
@@ -60,7 +61,12 @@ export class LabelRenderer<P extends GeoJSON.GeoJsonProperties> {
     const [cx, cy] = this.tile.project(coordinates[0], coordinates[1])
     const rotation = 0
 
-    yield {x: cx, y: cy + this.paint.fontSize(), rotation}
+    yield {
+      x: cx,
+      y: cy + this.paint.fontSize(),
+      rotation,
+      accessory: null,
+    }
   }
 
   private *placeForPolygon(coordinates: Position[][]): Generator<LabelPlacement> {
@@ -68,6 +74,9 @@ export class LabelRenderer<P extends GeoJSON.GeoJsonProperties> {
     const path = new Path(points)
 
     for (const placement of path.placeLabels(this.paint.labelPosition(), this.paint.labelCount())) {
+      yield placement
+    }
+    for (const placement of path.placeLabels(LabelPosition.Center, this.paint.labelCount())) {
       yield placement
     }
   }

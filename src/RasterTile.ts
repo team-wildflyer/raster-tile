@@ -34,9 +34,15 @@ export class RasterTile<P extends GeoJSON.GeoJsonProperties> {
 
   public drawFeatures(context: GeotilerRenderingContext, delegate: FeatureRendererDelegate<P>) {
     context.clearRect(0, 0, this.width, this.height)
+    
+    const sorted = [...this.features]
+    const {zIndex} = delegate
+    if (zIndex != null) {
+      sorted.sort((a, b) => zIndex(a.properties, a) - zIndex(b.properties, b))
+    }
 
     // First render all features.
-    for (const feature of this.features) {
+    for (const feature of sorted) {
       const renderer = new FeatureRenderer(this, feature, delegate)
       renderer.render(context)
     }
