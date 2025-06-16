@@ -1,5 +1,6 @@
 import { BBox, FeatureCollectionWithProps } from 'geojson-classes'
 import { LayoutRect, memoized } from 'ytil'
+
 import { FeatureRenderer } from './FeatureRenderer'
 import { LabelRenderer } from './LabelRenderer'
 import { FeatureRendererDelegate, GeotilerRenderingContext, LabelRendererDelegate } from './types'
