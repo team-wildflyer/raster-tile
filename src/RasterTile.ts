@@ -76,18 +76,26 @@ export class RasterTile<P extends GeoJSON.GeoJsonProperties> {
     }
   }
 
+  @memoized private get y1() { return mercatorY(this.bbox.lat1) }
+  @memoized private get y2() { return mercatorY(this.bbox.lat2) }
+
   public project(lon: number, lat: number): [number, number] {
     const bbox = this.bbox
-    const [paddingX, paddingY] = this.paddingInPx
+    const innerBounds = this.innerBounds
 
-    const x = (lon - bbox.lon1) / (bbox.lon2 - bbox.lon1) * this.innerBounds.width
-    const y = (1 - (lat - bbox.lat1) / (bbox.lat2 - bbox.lat1)) * this.innerBounds.height
+    const x = innerBounds.left + (lon - bbox.lon1) / (bbox.lon2 - bbox.lon1) * innerBounds.width
+    const y = innerBounds.top + (1 - (mercatorY(lat) - this.y1) / (this.y2 - this.y1)) * innerBounds.height
 
-    return [(x + paddingX), (y + paddingY)]
+    return [x, y]
   }
 
   // #endregion
 
+}
+
+function mercatorY(lat: number): number {
+  const rad = lat * Math.PI / 180
+  return Math.log(Math.tan(Math.PI / 4 + rad / 2))
 }
 
 export interface RasterTileOptions {
